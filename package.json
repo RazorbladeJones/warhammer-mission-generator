@@ -1,0 +1,12 @@
+{
+  "name": "warhammer-mission-generator",
+  "version": "1.0.0",
+  "description": "Warhammer 40K Wrath & Glory Mission Generator",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}
