@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warhammer 40K Wrath & Glory Mission Generator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0a0a0a;
+            color: #d0d0d0;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        h1, h2, h3 {
+            color: #d4af37;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+            border-bottom: 2px solid #d4af37;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            background-color: #1a1a1a;
+            padding: 10px;
+            border-left: 4px solid #d4af37;
+        }
+        
+        h3 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .section {
+            background-color: #1a1a1a;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .element {
+            margin-bottom: 10px;
+        }
+        
+        .element-title {
+            font-weight: bold;
+            color: #d4af37;
+        }
+        
+        button {
+            background-color: #d4af37;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #b38f1d;
+        }
+        
+        .button-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .copy-button {
+            background-color: #444;
+            color: #fff;
+        }
+        
+        .copy-button:hover {
+            background-color: #555;
+        }
+        
+        .inquisition-seal {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 2em;
+            color: #d4af37;
+        }
+        
+        @media print {
+            body {
+                background-color: white;
+                color: black;
+            }
+            button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="inquisition-seal">][</div>
+    <h1>Warhammer 40K Wrath & Glory Mission Generator</h1>
+    
+    <div class="button-container">
+        <button id="generate-button">Generate New Mission</button>
+        <button id="copy-button" class="copy-button">Copy to Clipboard</button>
+    </div>
+    
+    <div id="mission-content">
+        <div class="section">
+            <h2>Overview</h2>
+            <div id="overview"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Act One</h2>
+            <div id="act-one"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Act Two</h2>
+            <div id="act-two"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Act Three</h2>
+            <div id="act-three"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Act Four</h2>
+            <div id="act-four"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Data from text files
+        const hookData = [
+            "A Call for aid: Someone involved has called for help.",
+            "Attack: An attack has drawn your attention.",
+            "Bizarre occurrence: Something inexplicable has occurred.",
+            "Dead body: Someone has died. The circumstances and your relationship with the deceased may vary, but you have to investigate.",
+            "Disaster: A disaster has struck and there is definitely something behind it.",
+            "Friend in need: A loyal friend is in the middle of something dangerous.",
+            "News: A message reaches your from an official source. Everyone may know about it or just the heroes.",
+            "Old enemy: An old enemy rears their head, but this time to warn your of a greater threat.",
+            "Pressing buttons: An event has created a strong emotional reaction in the heroes and something must be done.",
+            "Up to our necks in it: The inciting events happen while the heroes are present. They are immediately caught up in the action.",
+            "Everything you know is wrong: The Ally is really the Villain. The listed Villain is really on your side."
+        ];
+        
+        const villainData = [
+            "Corruptor: Motivated by the desire to sully that which is good.",
+            "Conqueror: Only desires to use their forces for conquest.",
+            "Master Spy: An infiltrator and one who uncovers secrets.",
+            "Destroyer: Doesn't dream of conquest, they dream of obliteration.",
+            "Mastermind: Has plans within plans.",
+            "Commander: A brilliant tactician and a hero to the enemy.",
+            "Vanguard: Prepares the way for the next strike by another member of their faction.",
+            "Zealot: Comes to convert his enemy or cleanse the galaxy of other ideologies.",
+            "Assassin: Has a target (or targets) they must destroy. Everything else is a distraction.",
+            "Corrupted Ally: Once a valued member of society, now a hidden enemy.",
+            "Mad Scientist: A brilliant but broken mind. Pushes the boundaries of science into horror.",
+            "Nemesis: The universe is a chessboard. They are your equal in every way and they never make a mistake.",
+            "Recurring Villain: A villain from the past returns."
+        ];
+        
+        const enemyData = [
+            "Imperium of Man: Astra Militarum",
+            "Imperium of Man: Navis Imperialis",
+            "Imperium of Man: Adeptus Astartes",
+            "Imperium of Man: Adeptus Mechanicus",
+            "Imperium of Man: Adeptus Ministorum/Ecclesiarchy",
+            "Imperium of Man: Adeptus Arbites",
+            "Imperium of Man: Inquisition",
+            "Necrons",
+            "Agents of Chaos: Khorne",
+            "Agents of Chaos: Nurgle",
+            "Agents of Chaos: Slaanesh",
+            "Agents of Chaos: Tzeentch",
+            "Agents of Chaos: Chaos Undivided",
+            "Aeldari (Asuryani or Ynnari)",
+            "Aeldari (Drukari)",
+            "Aeldari (Corsairs)",
+            "Aeldari (Harlequins)",
+            "Genestealer Cult",
+            "Chaos Cult",
+            "Orks",
+            "Orks",
+            "T'au",
+            "T'au",
+            "Tyranids",
+            "Hazardous Lifeforms/Animals/Monsters"
+        ];
+        
+        const plotData = [
+            "To manipulate or control",
+            "To steal or acquire",
+            "To blackmail or extort",
+            "To kill or destroy",
+            "To create",
+            "To hunt or capture",
+            "To infiltrate",
+            "To overthrow",
+            "To ransom",
+            "To corrupt"
+        ];
+        
+        const plot2Data = [
+            "a monster",
+            "a building",
+            "people",
+            "a world",
+            "a treasure",
+            "an enemy",
+            "an object",
+            "the heroes",
+            "wealth",
+            "a city",
+            "a vehicle",
+            "an organization",
+            "technology",
+            "a resource",
+            "a leader or ruler",
+            "the ally",
+            "someone famous",
+            "a rival",
+            "local military or law enforcers",
+            "innocent victims"
+        ];
+        
+        const minorLocationData = [
+            "Space (orbit, vessel, station)",
+            "Natural (park, jungle, mountains)",
+            "Urban (city streets, a building, rooftops)",
+            "Residential (urban, suburban, rural)",
+            "Entertainment (theatre, stadium, nightclub)",
+            "Religious (church, temple, shrine)",
+            "Business (marketplace, factory, warehouse)",
+            "Transportation (port, station, mass transit)",
+            "Education (museum, university)",
+            "Government (post office, city hall, courts)",
+            "Slums (hovels, rough neighborhood)",
+            "Secret Base (enemy, ally, faction)",
+            "Military (headquarters, base of operations)",
+            "Food (restaurant, market)",
+            "Science (laboratory, testing, technology)",
+            "Military setting (base, warzone, headquarters)",
+            "Landmark (natural, artificial, ancient)",
+            "Unusual (underwater, volcano, underground)"
+        ];
+        
+        const majorLocationData = [
+            "Feudal World",
+            "Feral World",
+            "Forge World",
+            "Hive World",
+            "Shrine or Cemetery World",
+            "Pleasure World",
+            "Shrine, Cardinal, or Holy World",
+            "War World",
+            "Dead World",
+            "Tomb World",
+            "Agri-World",
+            "Civilised/Developing World",
+            "Industrial World",
+            "Death World",
+            "Mining World",
+            "Waste World",
+            "Forbidden World",
+            "Frontier World",
+            "Desert World",
+            "Ocean World",
+            "Maiden World",
+            "Chrone World",
+            "Xenos World",
+            "Daemon World",
+            "Craftworld",
+            "Deep Space"
+        ];
+        
+        const allyData = [
+            "Absent-Minded Expert: Quirky, but frequently helpful",
+            "Hero Worshipper: They are your biggest fan.",
+            "Innocent in Distress: Caught up in something beyond their control.",
+            "Grumpy Old Professional: Cranky, be always useful.",
+            "Gibbering Madman: Between the cracks in their sanity there is truth.",
+            "Previous Ally: A returning compatriot offers help.",
+            "Competent Rival: Annoyingly competent and after the same goals.",
+            "Former Enemy: You once wanted to destroy each other, now you're allied",
+            "Villain Ally: An enemy whose goals align with yours -- for now.",
+            "Talkative Bonvivant: Popular, friendly, and refuses to be silent.",
+            "Government Authority: They have power and they're willing to help.",
+            "Obsequious Merchant: A wealthy and connected sycophant.",
+            "Entertainer: A rising (or falling) star in the public eye.",
+            "Grizzled Veteran: Tough as nails. They've seen things that would break a weaker person.",
+            "Mysterious Stranger: An inscrutable individual that wishes to remain a mystery.",
+            "Dangerous Agent: A reckless or lethal servant of a higher authority.",
+            "Skilled Artisan: They fear a galaxy with no place for art/music/culture.",
+            "Welcoming Host: Genuinely friendly. Your money is no good here. It's on the house.",
+            "Dedicated Healer: Whether cynical or hopeful, they only want to save lives.",
+            "Spiritual Leader: Either a charlatan or true-believer, they're helping for the good of all.",
+            "Cunning Criminal: Just because they're a criminal doesn't mean they're an enemy.",
+            "Dedicated Investigator: A dogged professional that hungers to know the answer to every mystery.",
+            "Wise Sage: Their advice is worth heeding, whether they are old, young, or in-between",
+            "Eternal Wanderer: Never feels at home anywhere. They galaxy is their playground or their prison.",
+            "Resilient Victim: They've been kicked around, but they refuse to be broken.",
+            "Foreign Ally: The ally is a sanctioned Xenos or a member of another race/faction that is on your side."
+        ];
+        
+        const actionSequenceData = [
+            "Chase, foot",
+            "Chase, vehicle",
+            "Chase, foot - difficult terrain",
+            "Chase, vehicle, difficult terrain",
+            "Chase, foot - hazardous/unusual environment (water, space, etc)",
+            "Chase, Vehicle - hazardous/unusual environment (water, space, etc)",
+            "Combat, characters ambushed (melee)",
+            "Combat, characters ambushed (ranged)",
+            "Combat, characters attacked (melee)",
+            "Combat, characters attacked (ranged)",
+            "Combat, characters attacked by monster/animal",
+            "Vehicle crash landing",
+            "Vehicle ambushed",
+            "Vehicle attacked",
+            "Monster/Animal attack",
+            "Hindered by inquisitive official",
+            "Hindered by a thief",
+            "Hindered by local military/police",
+            "Hindered by attack/explosion on location",
+            "Hindered by riot or mob"
+        ];
+        
+        const actionLocationData = [
+            "Space (orbit, vessel, station)",
+            "Natural (park, jungle, mountains)",
+            "Urban (city streets, a building, rooftops)",
+            "Residential (urban, suburban, rural)",
+            "Entertainment (theatre, stadium, nightclub)",
+            "Religious (church, temple, shrine)",
+            "Business (marketplace, factory, warehouse)",
+            "Transportation (port, station, mass transit)",
+            "Education (museum, university)",
+            "Government (post office, city hall, courts)",
+            "Slums (hovels, rough neighborhood)",
+            "Secret Base (enemy, ally, faction)",
+            "Military (headquarters, base of operations)",
+            "Food (restaurant, market)",
+            "Science (laboratory, testing, technology)",
+            "Military setting (base, warzone, headquarters)",
+            "Landmark (natural, artificial, ancient)",
+            "Unusual (underwater, volcano, underground)"
+        ];
+        
+        const complicationData = [
+            "Innocent Bystanders",
+            "Environmental Hazards",
+            "Props: Objects present that could hinder or harm the PCs/NPCs",
+            "It doesn't work: A device doesn't work as expected or fails altogether.",
+            "Distraction: Something draws attention away from the primary goal.",
+            "Reinforcements: More enemies arrive.",
+            "Ticking Clock: Time is running out.",
+            "Difficult Terrain: The area is challenging to navigate."
+        ];
+        
+        const twistData = [
+            "Betrayal: Someone you trusted has been turned against you.",
+            "Agent of the Villain: A servant of the villain reveals themselves.",
+            "Hidden Plot: The plot is a misdirect. There is another agenda at work.",
+            "Reversal of Fortunes: Circumstances conspire to thwart the heroes or the villain.",
+            "Bizarre Occurrence: Something inexplicable occurs that throws the heroes and their allies off balance.",
+            "Deus Ex Machina: An unexpected event reverses a hopeless situation.",
+            "Minor Revelation: A clue is revealed that answers a missing piece of the puzzle.",
+            "Twist of Fate: A mishap turns the tide against the heroes."
+        ];
+        
+        const climaxData = [
+			"Showdown in a dramatic setting (Throne Room, Horse Corral, Theater Stage. etc.)",
+			"One final chase: Villain has nowhere to run.",
+			"One final chase: Chance villain could escape.",
+			"Final Confrontation: Villain is foiled by his own plans.",
+			"Final Confrontation: Heroes arrive to foil the villain's deed/plan.",
+			"Final Confrontation: Heroes face the villain's forces in final battle.",
+			"To the Death: Heroes paired up in enemy duels.",
+			"To the Death: Cornered, the villain has a doomsday weapon ready to take the heroes with them into oblivion.",
+			"Showdown where it all began: Villain and their forces return to the location of Act One to finish things once and for all.",
+			"Death Trap: An elaborate Death Trap awaits the heroes."
+		];
+
+	// Function to get a random item from an array
+	function getRandomItem(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+	}
+
+	// Function to generate mission elements
+	function generateMission() {
+    // Generate overview elements
+    const hook = getRandomItem(hookData);
+    const villain = getRandomItem(villainData);
+    const enemy = getRandomItem(enemyData);
+    const plot1 = getRandomItem(plotData);
+    const plot2 = getRandomItem(plot2Data);
+    const minorLocation = getRandomItem(minorLocationData);
+    const majorLocation = getRandomItem(majorLocationData);
+    const ally = getRandomItem(allyData);
+    
+    // Generate act elements
+    const actionSequence1 = getRandomItem(actionSequenceData);
+    const actionLocation1 = getRandomItem(actionLocationData);
+    const complication1 = getRandomItem(complicationData);
+    
+    const actionSequence2 = getRandomItem(actionSequenceData);
+    const actionLocation2 = getRandomItem(actionLocationData);
+    const complication2 = getRandomItem(complicationData);
+    const twist1 = getRandomItem(twistData);
+    
+    const actionSequence3 = getRandomItem(actionSequenceData);
+    const actionLocation3 = getRandomItem(actionLocationData);
+    const complication3 = getRandomItem(complicationData);
+    const twist2 = getRandomItem(twistData);
+    
+    const climax = getRandomItem(climaxData);
+    const twist3 = getRandomItem(twistData);
+    
+    // Populate overview
+    document.getElementById('overview').innerHTML = `
+        <div class="element">
+            <span class="element-title">Hook:</span> ${hook}
+        </div>
+        <div class="element">
+            <span class="element-title">Villain:</span> ${villain}
+        </div>
+        <div class="element">
+            <span class="element-title">Enemy:</span> ${enemy}
+        </div>
+        <div class="element">
+            <span class="element-title">Plot:</span> ${plot1} ${plot2}
+        </div>
+        <div class="element">
+            <span class="element-title">Minor Location:</span> ${minorLocation}
+        </div>
+        <div class="element">
+            <span class="element-title">Major Location:</span> ${majorLocation}
+        </div>
+        <div class="element">
+            <span class="element-title">Ally:</span> ${ally}
+        </div>
+    `;
+    
+    // Populate act one
+    document.getElementById('act-one').innerHTML = `
+        <div class="element">
+            <span class="element-title">Action Sequence:</span> ${actionSequence1}
+        </div>
+        <div class="element">
+            <span class="element-title">Location:</span> ${actionLocation1}
+        </div>
+        <div class="element">
+            <span class="element-title">Complication:</span> ${complication1}
+        </div>
+    `;
+    
+    // Populate act two
+    document.getElementById('act-two').innerHTML = `
+        <div class="element">
+            <span class="element-title">Action Sequence:</span> ${actionSequence2}
+        </div>
+        <div class="element">
+            <span class="element-title">Location:</span> ${actionLocation2}
+        </div>
+        <div class="element">
+            <span class="element-title">Complication:</span> ${complication2}
+        </div>
+        <div class="element">
+            <span class="element-title">Twist:</span> ${twist1}
+        </div>
+    `;
+    
+    // Populate act three
+    document.getElementById('act-three').innerHTML = `
+        <div class="element">
+            <span class="element-title">Action Sequence:</span> ${actionSequence3}
+        </div>
+        <div class="element">
+            <span class="element-title">Location:</span> ${actionLocation3}
+        </div>
+        <div class="element">
+            <span class="element-title">Complication:</span> ${complication3}
+        </div>
+        <div class="element">
+            <span class="element-title">Twist:</span> ${twist2}
+        </div>
+    `;
+    
+    // Populate act four
+    document.getElementById('act-four').innerHTML = `
+        <div class="element">
+            <span class="element-title">Climax:</span> ${climax}
+        </div>
+        <div class="element">
+            <span class="element-title">Final Twist:</span> ${twist3}
+        </div>
+    `;
+}
+
+// Add event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Generate initial mission
+    generateMission();
+    
+    // Add event listener for generate button
+    document.getElementById('generate-button').addEventListener('click', generateMission);
+    
+    // Add event listener for copy button
+    document.getElementById('copy-button').addEventListener('click', function() {
+        const missionContent = document.getElementById('mission-content').innerText;
+        
+        // Create temporary textarea element
+        const tempTextArea = document.createElement('textarea');
+        tempTextArea.value = missionContent;
+        document.body.appendChild(tempTextArea);
+        
+        // Select and copy the text
+        tempTextArea.select();
+        document.execCommand('copy');
+        
+        // Remove the temporary element
+        document.body.removeChild(tempTextArea);
+        
+        // Provide feedback
+        const copyButton = document.getElementById('copy-button');
+        const originalText = copyButton.innerText;
+        copyButton.innerText = 'Copied!';
+        
+        setTimeout(function() {
+            copyButton.innerText = originalText;
+        }, 2000);
+    });
+});
+    </script>
+</body>
+</html>
