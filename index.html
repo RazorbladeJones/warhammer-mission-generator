@@ -144,7 +144,7 @@
     </div>
     
     <script>
-        // Data from text files
+        // Data from raw data files source: https://drive.google.com/file/d/10gz2iPPQfUVYmzaUXy_d4957_nxPj798/view?usp=drive_link 
         const hookData = [
             "A Call for aid: Someone involved has called for help.",
             "Attack: An attack has drawn your attention.",
@@ -152,8 +152,8 @@
             "Dead body: Someone has died. The circumstances and your relationship with the deceased may vary, but you have to investigate.",
             "Disaster: A disaster has struck and there is definitely something behind it.",
             "Friend in need: A loyal friend is in the middle of something dangerous.",
-            "News: A message reaches your from an official source. Everyone may know about it or just the heroes.",
-            "Old enemy: An old enemy rears their head, but this time to warn your of a greater threat.",
+            "News: A message reaches you from an official source. Everyone may know about it or just the heroes.",
+            "Old enemy: An old enemy rears their head, but this time to warn you of a greater threat.",
             "Pressing buttons: An event has created a strong emotional reaction in the heroes and something must be done.",
             "Up to our necks in it: The inciting events happen while the heroes are present. They are immediately caught up in the action.",
             "Everything you know is wrong: The Ally is really the Villain. The listed Villain is really on your side."
@@ -196,8 +196,6 @@
             "Genestealer Cult",
             "Chaos Cult",
             "Orks",
-            "Orks",
-            "T'au",
             "T'au",
             "Tyranids",
             "Hazardous Lifeforms/Animals/Monsters"
@@ -282,7 +280,7 @@
             "Desert World",
             "Ocean World",
             "Maiden World",
-            "Chrone World",
+            "Crone World",
             "Xenos World",
             "Daemon World",
             "Craftworld",
@@ -313,7 +311,7 @@
             "Cunning Criminal: Just because they're a criminal doesn't mean they're an enemy.",
             "Dedicated Investigator: A dogged professional that hungers to know the answer to every mystery.",
             "Wise Sage: Their advice is worth heeding, whether they are old, young, or in-between",
-            "Eternal Wanderer: Never feels at home anywhere. They galaxy is their playground or their prison.",
+            "Eternal Wanderer: Never feels at home anywhere. The galaxy is their playground or their prison.",
             "Resilient Victim: They've been kicked around, but they refuse to be broken.",
             "Foreign Ally: The ally is a sanctioned Xenos or a member of another race/faction that is on your side."
         ];
@@ -404,7 +402,8 @@
 
 	// Function to generate mission elements
 	function generateMission() {
-    // Generate overview elements
+    
+    // Generate elements from overview
     const hook = getRandomItem(hookData);
     const villain = getRandomItem(villainData);
     const enemy = getRandomItem(enemyData);
@@ -414,7 +413,7 @@
     const majorLocation = getRandomItem(majorLocationData);
     const ally = getRandomItem(allyData);
     
-    // Generate act elements
+    // Generate elements from act
     const actionSequence1 = getRandomItem(actionSequenceData);
     const actionLocation1 = getRandomItem(actionLocationData);
     const complication1 = getRandomItem(complicationData);
